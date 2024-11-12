@@ -1,35 +1,45 @@
 import { Request, Response, Router } from 'express';
-import { Types } from 'mongoose';
+import { isValidObjectId, Types } from 'mongoose';
+import multer from 'multer';
+import path from 'path';
+
 const Artwork = require('../models/Artwork');
 const router = Router();
 
-// Get all artworks of all artists
-router.get('/', async (req: Request, res: Response) => {
-  try {
-    const artworks = await Artwork.find();
-    res.json(artworks);
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
-  }
+// Create storage for uploaded images
+const storage = multer.diskStorage({
+  destination: 'uploads/',
+  filename: (req, file, cb) => {
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    cb(null, `${uniqueSuffix}-${file.originalname}`);
+  },
 });
 
-// Create a new artwork
-router.post('/', async (req: any, res: any) => {
-  try {
-    const { title, description, price, imageUrls, artistId, isPublished, shopifyProductId } = req.body;
+const upload = multer({ storage });
 
-    // Check for required fields
+// Create artwork
+router.post('/', upload.array('images', 10), async (req: any, res: any) => {
+  try {
+    const { title, description, price, artistId, isPublished, shopifyProductId } = req.body;
+
+    if (!isValidObjectId(artistId)) {
+      return res.status(400).json({ error: 'Invalid artistId format. It must be a valid MongoDB ObjectId.' });
+    }
+
+    // Check if required fields are missing
     if (!title || !description || typeof price === 'undefined' || !artistId) {
       return res.status(400).json({ error: 'Missing required fields: title, description, price, or artistId' });
     }
 
-    // Create the new artwork entry
+    // Collect image URLs
+    const imageUrls = req.files ? (req.files as Express.Multer.File[]).map(file => `/uploads/${file.filename}`) : [];
+
     const artwork = new Artwork({
       title,
       description,
       price,
-      imageUrls: imageUrls || [],
-      artistId: Types.ObjectId.createFromTime(artistId),
+      imageUrls,
+      artistId: new Types.ObjectId(artistId),
       isPublished: isPublished || false,
       shopifyProductId: shopifyProductId || '',
     });
@@ -38,6 +48,16 @@ router.post('/', async (req: any, res: any) => {
     res.status(201).json(artwork);
   } catch (error: any) {
     res.status(400).json({ error: error.message });
+  }
+});
+
+// Get all artworks of all artists
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const artworks = await Artwork.find();
+    res.json(artworks);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
   }
 });
 

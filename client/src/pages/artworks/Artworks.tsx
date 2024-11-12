@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Artwork } from '../types';
-import { Layout } from '../../components/layout/Layout';
 import { Link } from 'react-router-dom';
+import { BACKEND_API } from '../../api/config';
+import { Layout } from '../../components/layout/Layout';
+import { Artwork } from '../types';
 import styles from './artworks.module.css';
-
-const BACKEND_API = 'http://localhost:5000';
 
 export const Artworks = () => {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
@@ -24,13 +23,10 @@ export const Artworks = () => {
     }
   };
 
-  console.log(artworks);
-
   return (
     <Layout>
       <div className={styles.artworks}>
         <div className={styles.artworksPeview}>
-
           {artworks ? (
             artworks.map((item, i) => (
               <Link
@@ -39,7 +35,7 @@ export const Artworks = () => {
                 className={styles.artworksPreview}>
                 <img
                   className={styles.artworksPreviewImage}
-                  src={item.imageUrls[0]}
+                  src={`${BACKEND_API}${item.imageUrls[0]}`}
                   alt='artwork-preview'
                   height={200}
                   width={300}

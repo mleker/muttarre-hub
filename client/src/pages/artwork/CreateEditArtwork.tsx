@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Artwork } from '../types';
 import { Layout } from '../../components/layout/Layout';
 import styles from './artwork.module.css';
+import { BACKEND_API } from '../../api/config';
 
 export const CreateEditArtwork = () => {
   const { id } = useParams();
@@ -17,7 +18,8 @@ export const CreateEditArtwork = () => {
     width: 0,
     depth: 0,
     technik: '',
-    artistId: '',
+    // TODO: get artistId from auth
+    artistId: '603d74fbf4b3b3b3b8b3b3b3',
     isPublished: false,
     shopifyProductId: '',
     createdAt: new Date(),
@@ -35,7 +37,7 @@ export const CreateEditArtwork = () => {
   }, [id]);
 
   const fetchArtwork = async (artworkId: string) => {
-    const response = await fetch(`/api/artworks/${artworkId}`);
+    const response = await fetch(`${BACKEND_API}/api/artworks/${artworkId}`);
     const data = await response.json();
     setArtwork(data);
     setPreviewUrls(data.imageUrls || []);
@@ -57,7 +59,7 @@ export const CreateEditArtwork = () => {
   };
 
   const saveArtwork = async (artwork: Artwork) => {
-    fetch(`/api/artworks/${artwork._id}`, {
+    fetch(`${BACKEND_API}/api/artworks/${artwork._id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -68,19 +70,51 @@ export const CreateEditArtwork = () => {
 
   const deleteArtwork = async (artwork: Artwork) => {
     if (window.confirm('Are you sure?')) {
-      fetch(`/api/artworks/${artwork._id}`, {
+      fetch(`${BACKEND_API}/api/artworks/${artwork._id}`, {
         method: 'DELETE',
       });
     }
   }
 
-  const createArtwork = async (artwork: Artwork) => {
-    fetch('/api/artworks', {
-      method: 'POST',
-      body: JSON.stringify(artwork)
+  const createArtwork = async () => {
+    const formData = new FormData();
+  
+    // Add artwork data to formData
+    formData.append('title', artwork.title);
+    formData.append('description', artwork.description);
+    formData.append('price', artwork.price.toString());
+    formData.append('height', artwork.height.toString());
+    formData.append('width', artwork.width.toString());
+    formData.append('depth', artwork.depth.toString());
+    formData.append('technik', artwork.technik);
+    formData.append('artistId', artwork.artistId);
+    formData.append('isPublished', artwork.isPublished.toString());
+    formData.append('shopifyProductId', artwork.shopifyProductId);
+    formData.append('createdAt', artwork.createdAt.toISOString());
+  
+    // Add image files to formData
+    imageFiles.forEach((file) => {
+      formData.append('images', file); // Field name 'images' should match the field name in the backend
     });
-    window.location.href = '/artworks';
-  }
+  
+    try {
+      const response = await fetch(`${BACKEND_API}/api/artworks`, {
+        method: 'POST',
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        throw new Error('Ошибка при создании artwork');
+      }
+  
+      const data = await response.json();
+      console.log('Artwork created:', data);
+      window.location.href = '/artworks';
+    } catch (error) {
+      console.error('Error creating artwork:', error);
+    }
+  };
+  
 
   return (
     <Layout>
@@ -125,7 +159,12 @@ export const CreateEditArtwork = () => {
 
             <div>
               {/* i want it to be able to upload multiple images and preview them*/}
-              <input type="file" multiple onChange={handleImageUpload} />
+              <input
+                type="file"
+                multiple
+                onChange={handleImageUpload}
+                name="images"
+              />
               <div className={styles.imagesPreviewContainer}>
                 {previewUrls.map((url, i) => (
                   <div
@@ -210,7 +249,7 @@ export const CreateEditArtwork = () => {
               type="submit"
               disabled={!editing}
               className={styles.button}
-              onClick={() => artwork && createArtwork(artwork)}
+              onClick={createArtwork}
             >
               {'Create'}
             </button>
