@@ -6,7 +6,7 @@ const ArtworkSchema = new mongoose.Schema({
   price: { type: Number, required: true, min: 0 },
   imageUrls: { type: [String], default: [] },
   artistId: { type: mongoose.Schema.Types.ObjectId, ref: 'Artist', required: true },
-  isPublished: { type: Boolean, default: false },
+  technik: { type: String, default: '' },
   shopifyProductId: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now },
 });

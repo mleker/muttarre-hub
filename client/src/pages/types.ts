@@ -11,5 +11,11 @@ export interface Artwork {
   artistId: string,
   isPublished: boolean,
   shopifyProductId: string,
-  createdAt: Date,
+}
+
+export interface Artist {
+  _id: string;
+  name: string;
+  email: string;
+  bio: string,
 }

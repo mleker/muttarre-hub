@@ -1,8 +1,9 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
-dotenv.config();
+// Let fetch all the products from Shopify and save them to MongoDB
 // TODO: not working yet, need to fix
+dotenv.config();
 
 const SHOPIFY_ACCESS_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
 const SHOPIFY_STORE_NAME = process.env.SHOPIFY_STORE_NAME;

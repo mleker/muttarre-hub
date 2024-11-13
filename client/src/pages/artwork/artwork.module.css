@@ -1,4 +1,4 @@
-.artworkForm {
+.form {
   display: flex;
   justify-content: space-between;
 }
@@ -10,9 +10,9 @@
   font-weight: 300;
   width: 200px;
   height: 40px;
-  margin-top: 20px;
   padding: 5px;
   cursor: pointer;
+  margin-bottom: 20px;
 }
 
 .button:hover {
@@ -43,10 +43,10 @@
 
 .imagePreview {
   width: 150px;
-  height: 150px;
+  height: 100px;
   object-fit: cover;
-  margin-top: 10px;
-  margin-right: 10px
+  margin-right: 10px;
+  margin-bottom: 10px;
 }
 
 .imagesPreviewContainer {
@@ -59,7 +59,6 @@
 
 .imagePreviewDeleteIcon {
   position: absolute;
-  top: 10px;
   right: 10px;
   color: black;
   cursor: pointer;

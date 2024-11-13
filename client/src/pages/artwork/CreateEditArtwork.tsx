@@ -5,6 +5,9 @@ import { Layout } from '../../components/layout/Layout';
 import styles from './artwork.module.css';
 import { BACKEND_API } from '../../api/config';
 
+// TODO: add form validation
+// TODO: add error handling
+// TODO: refactor in smaller components
 export const CreateEditArtwork = () => {
   const { id } = useParams();
 
@@ -22,7 +25,6 @@ export const CreateEditArtwork = () => {
     artistId: '603d74fbf4b3b3b3b8b3b3b3',
     isPublished: false,
     shopifyProductId: '',
-    createdAt: new Date(),
   });
 
   const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -40,7 +42,9 @@ export const CreateEditArtwork = () => {
     const response = await fetch(`${BACKEND_API}/api/artworks/${artworkId}`);
     const data = await response.json();
     setArtwork(data);
-    setPreviewUrls(data.imageUrls || []);
+    // Generate full URLs for saved images
+    const fullImageUrls = data.imageUrls.map((url: string) => `${BACKEND_API}${url}`);
+    setPreviewUrls(fullImageUrls);
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,15 +74,17 @@ export const CreateEditArtwork = () => {
 
   const deleteArtwork = async (artwork: Artwork) => {
     if (window.confirm('Are you sure?')) {
-      fetch(`${BACKEND_API}/api/artworks/${artwork._id}`, {
+      await fetch(`${BACKEND_API}/api/artworks/${artwork._id}`, {
         method: 'DELETE',
       });
     }
+
+    window.location.href = '/artworks';
   }
 
   const createArtwork = async () => {
     const formData = new FormData();
-  
+
     // Add artwork data to formData
     formData.append('title', artwork.title);
     formData.append('description', artwork.description);
@@ -88,25 +94,23 @@ export const CreateEditArtwork = () => {
     formData.append('depth', artwork.depth.toString());
     formData.append('technik', artwork.technik);
     formData.append('artistId', artwork.artistId);
-    formData.append('isPublished', artwork.isPublished.toString());
     formData.append('shopifyProductId', artwork.shopifyProductId);
-    formData.append('createdAt', artwork.createdAt.toISOString());
-  
+
     // Add image files to formData
     imageFiles.forEach((file) => {
       formData.append('images', file); // Field name 'images' should match the field name in the backend
     });
-  
+
     try {
       const response = await fetch(`${BACKEND_API}/api/artworks`, {
         method: 'POST',
         body: formData,
       });
-  
+
       if (!response.ok) {
         throw new Error('Ошибка при создании artwork');
       }
-  
+
       const data = await response.json();
       console.log('Artwork created:', data);
       window.location.href = '/artworks';
@@ -114,14 +118,14 @@ export const CreateEditArtwork = () => {
       console.error('Error creating artwork:', error);
     }
   };
-  
+
 
   return (
     <Layout>
       {artwork || (!artwork && !id) ? (
         // TODO: form validation
         <form
-          className={styles.artworkForm}
+          className={styles.form}
           onSubmit={(e) => {
             e.preventDefault();
           }}
@@ -173,8 +177,10 @@ export const CreateEditArtwork = () => {
                   >
                     <img
                       src={url}
-                      alt={`preview ${i}`}
+                      alt={`preview ${i + 1}`}
                       className={styles.imagePreview}
+                      width='150'
+                      height='100'
                     />
                     <div
                       className={styles.imagePreviewDeleteIcon}
@@ -183,8 +189,6 @@ export const CreateEditArtwork = () => {
                   </div>
                 ))}
               </div>
-
-
             </div>
 
             <div>

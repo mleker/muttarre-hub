@@ -4,3 +4,16 @@
   font-size: 20px;
   font-weight: 300;
 }
+
+.sidemenuItem {
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.sidemenuItem:hover {
+  text-decoration: underline;
+}
+
+.active {
+  text-decoration: underline;
+}

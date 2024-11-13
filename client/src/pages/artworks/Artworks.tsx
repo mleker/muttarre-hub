@@ -27,25 +27,27 @@ export const Artworks = () => {
     <Layout>
       <div className={styles.artworks}>
         <div className={styles.artworksPeview}>
-          {artworks ? (
-            artworks.map((item, i) => (
-              <Link
-                to={`/artworks/edit/${item._id}`}
-                key={i}
-                className={styles.artworksPreview}>
-                <img
-                  className={styles.artworksPreviewImage}
-                  src={`${BACKEND_API}${item.imageUrls[0]}`}
-                  alt='artwork-preview'
-                  height={200}
-                  width={300}
-                />
-
-              </Link>
-            ))
-          ) : (
-            'No artworks yet'
-          )}
+          <div className={styles.artworksPeviewGrid}>
+            {artworks ? (
+              artworks.map((item, i) => (
+                <Link
+                  className={styles.artworksPeview}
+                  to={`/artworks/edit/${item._id}`}
+                  key={i}
+                >
+                  <img
+                    className={styles.artworksPeviewImage}
+                    src={`${BACKEND_API}${item.imageUrls[0]}`}
+                    alt='artwork-preview'
+                    height={200}
+                    width={300}
+                  />
+                </Link>
+              ))
+            ) : (
+              'No artworks yet'
+            )}
+          </div>
         </div>
         <Link
           className={styles.artworksNewButton}
